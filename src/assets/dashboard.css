@@ -1,0 +1,61 @@
+/* src/assets/dashboard.css */
+
+.dashboard-header {
+  margin-bottom: 24px;
+}
+
+/* การ์ดสถิติหลัก */
+.stat-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid #eef2f6 !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+  border-color: #primary !important;
+}
+
+/* ส่วนของหมวดหมู่ (Category Stats) */
+.category-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.category-mini-card {
+  min-width: 140px;
+  background-color: #ffffff;
+  border: 1px solid #eef2f6 !important;
+  transition: all 0.2s ease;
+}
+
+.category-mini-card:hover {
+  background-color: #f8faff;
+  border-color: #bbdefb !important;
+}
+
+.category-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.category-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* ปรับแต่ง List สินค้าเข้าใหม่ */
+.recent-card {
+  border-radius: 20px !important;
+}
+
+.stock-chip {
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+}
