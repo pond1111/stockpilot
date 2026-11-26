@@ -49,7 +49,7 @@
     <v-row v-else>
       <v-col cols="12" class="text-center pa-10">
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
-        <p class="mt-4 text-grey">กำลังโหลดข้อมูลสินค้า ID: {{ $route.params.id }}</p>
+        <p class="mt-4 text-grey">กำลังโหลดข้อมูลสินค้า ID: { $route.params.id }</p>
       </v-col>
     </v-row>
   </v-container>
@@ -60,7 +60,7 @@
   import { useRoute, useRouter } from 'vue-router'
   import { useProducts } from '@/features/useProducts'
 
-  const route = useRoute()
+  const route = useRoute('/edit-[id]')
   const router = useRouter()
   const { getProductById, updateProduct } = useProducts()
 
