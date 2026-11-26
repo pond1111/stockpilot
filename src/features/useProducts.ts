@@ -1,12 +1,11 @@
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { supabase } from '../lib/supabase'
 
 // ✅ State ที่ใช้ร่วมกันทั้งแอป (Global State)
 const globalProducts = ref<any[]>([])
 const isGlobalLoading = ref(false)
 
-export function useProducts() {
-
+export function useProducts () {
   // 1. [Read] ดึงข้อมูลสินค้าพร้อมระบบ Filter
   // เพิ่ม parameter search และ category พร้อมค่า Default
   const fetchProducts = async (search = '', category = '') => {
@@ -28,12 +27,14 @@ export function useProducts() {
       // เรียงลำดับจากใหม่ไปเก่า (ถ้ามีคอลัมน์ id หรือ created_at)
       const { data, error } = await query.order('id', { ascending: false })
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       globalProducts.value = data || []
       console.log('✅ ดึงข้อมูลสำเร็จ:', globalProducts.value)
-    } catch (err: any) {
-      console.error('❌ ดึงข้อมูลไม่สำเร็จ:', err.message)
+    } catch (error: any) {
+      console.error('❌ ดึงข้อมูลไม่สำเร็จ:', error.message)
     } finally {
       isGlobalLoading.value = false
     }
@@ -42,13 +43,17 @@ export function useProducts() {
   // 2. [Create] เพิ่มสินค้าใหม่
   const addProduct = async (payload: any) => {
     try {
-      if (!supabase) throw new Error('Supabase not connected')
+      if (!supabase) {
+        throw new Error('Supabase not connected')
+      }
       const { error } = await supabase.from('products').insert([payload])
-      if (error) throw error
+      if (error) {
+        throw error
+      }
       await fetchProducts()
       return true
-    } catch (err: any) {
-      console.error('❌ เพิ่มไม่สำเร็จ:', err.message)
+    } catch (error: any) {
+      console.error('❌ เพิ่มไม่สำเร็จ:', error.message)
       return false
     }
   }
@@ -57,10 +62,12 @@ export function useProducts() {
   const getProductById = async (id: string | number) => {
     try {
       const { data, error } = await supabase.from('products').select('*').eq('id', id).single()
-      if (error) throw error
+      if (error) {
+        throw error
+      }
       return data
-    } catch (err: any) {
-      console.error('❌ ดึงข้อมูลเฉพาะตัวไม่สำเร็จ:', err.message)
+    } catch (error: any) {
+      console.error('❌ ดึงข้อมูลเฉพาะตัวไม่สำเร็จ:', error.message)
       return null
     }
   }
@@ -69,25 +76,31 @@ export function useProducts() {
   const updateProduct = async (id: string | number, payload: any) => {
     try {
       const { error } = await supabase.from('products').update(payload).eq('id', id)
-      if (error) throw error
+      if (error) {
+        throw error
+      }
       await fetchProducts()
       return true
-    } catch (err: any) {
-      console.error('❌ อัปเดตไม่สำเร็จ:', err.message)
+    } catch (error: any) {
+      console.error('❌ อัปเดตไม่สำเร็จ:', error.message)
       return false
     }
   }
 
   // 5. [Delete] ลบสินค้า
   const deleteProduct = async (id: string | number) => {
-    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้?')) return false
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้?')) {
+      return false
+    }
     try {
       const { error } = await supabase.from('products').delete().eq('id', id)
-      if (error) throw error
+      if (error) {
+        throw error
+      }
       globalProducts.value = globalProducts.value.filter(p => p.id !== id)
       return true
-    } catch (err: any) {
-      console.error('❌ ลบไม่สำเร็จ:', err.message)
+    } catch (error: any) {
+      console.error('❌ ลบไม่สำเร็จ:', error.message)
       return false
     }
   }
@@ -119,6 +132,6 @@ export function useProducts() {
     updateProduct,
     lowStockItems,
     totalProducts,
-    totalStockValue
+    totalStockValue,
   }
 }

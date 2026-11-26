@@ -22,7 +22,7 @@ router.beforeEach(async (to, from, next) => {
     next({ path: '/login' })
   } else if (isLoggedIn && isLoginPage) {
     // ถ้าล็อกอินแล้ว แต่จะแอบเข้าหน้า Login ซ้ำ -> ดีดไปหน้า Catalog หรือหน้าหลัก
-    next({ path: '/catalog' })
+    next({ path: '/' })
   } else {
     // กรณีอื่นๆ -> ปล่อยผ่านปกติ
     next()

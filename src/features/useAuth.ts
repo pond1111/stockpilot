@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase' // ตรวจสอบว่า pat
 // ✅ สร้างสถานะ User ไว้นอก Function เพื่อให้ทุกหน้าเห็นข้อมูลชุดเดียวกัน (Global State)
 const user = ref<any>(null)
 
-export function useAuth() {
+export function useAuth () {
   const router = useRouter()
   const email = ref('')
   const password = ref('')
@@ -28,19 +28,21 @@ export function useAuth() {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.value,
-        password: password.value
+        password: password.value,
       })
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       user.value = data.user
       console.log('✅ เข้าสู่ระบบสำเร็จ:', user.value)
 
       // ล็อกอินเสร็จให้ไปหน้า Catalog ตามที่คุณต้องการ
       router.push('/')
-    } catch (err: any) {
-      console.error('❌ Login Error:', err.message)
-      alert('อีเมลหรือรหัสผ่านไม่ถูกต้อง: ' + err.message)
+    } catch (error: any) {
+      console.error('❌ Login Error:', error.message)
+      alert('อีเมลหรือรหัสผ่านไม่ถูกต้อง: ' + error.message)
     } finally {
       isLoading.value = false
     }
@@ -50,38 +52,42 @@ export function useAuth() {
   const handleLogout = async () => {
     try {
       const { error } = await supabase.auth.signOut()
-      if (error) throw error
+      if (error) {
+        throw error
+      }
       user.value = null
       router.push('/login')
-    } catch (err: any) {
-      console.error('Logout Error:', err.message)
+    } catch (error: any) {
+      console.error('Logout Error:', error.message)
     }
   }
 
   // เพิ่ม handleRegister เข้าไปใน export function useAuth()
-const handleRegister = async () => {
-  if (!email.value || !password.value) {
-    alert('กรุณากรอกข้อมูลให้ครบถ้วน')
-    return
-  }
+  const handleRegister = async () => {
+    if (!email.value || !password.value) {
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน')
+      return
+    }
 
-  isLoading.value = true
-  try {
-    const { data, error } = await supabase.auth.signUp({
-      email: email.value,
-      password: password.value
-    })
+    isLoading.value = true
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: email.value,
+        password: password.value,
+      })
 
-    if (error) throw error
+      if (error) {
+        throw error
+      }
 
-    alert('สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมล (หากเปิดระบบ Confirm Email ไว้) หรือเข้าสู่ระบบได้เลย')
+      alert('สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมล (หากเปิดระบบ Confirm Email ไว้) หรือเข้าสู่ระบบได้เลย')
     // ถ้าสมัครสำเร็จ ปกติ Supabase จะล็อกอินให้เลย หรือจะให้สลับไปหน้า Login ก็ได้
-  } catch (err: any) {
-    alert('Register Error: ' + err.message)
-  } finally {
-    isLoading.value = false
+    } catch (error: any) {
+      alert('Register Error: ' + error.message)
+    } finally {
+      isLoading.value = false
+    }
   }
-}
 
   return {
     email,

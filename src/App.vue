@@ -1,7 +1,7 @@
 <template>
   <v-app>
-    <v-overlay :model-value="isCheckingAuth" class="align-center justify-center" permanent>
-      <v-progress-circular indeterminate color="primary" size="64" />
+    <v-overlay class="align-center justify-center" :model-value="isCheckingAuth" permanent>
+      <v-progress-circular color="primary" indeterminate size="64" />
     </v-overlay>
 
     <template v-if="!isCheckingAuth">
@@ -21,20 +21,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import AdminLayout from '@/layouts/AdminLayout.vue'
-import { useAuth } from '@/features/useAuth'
+  import { onMounted, ref } from 'vue'
+  import { useAuth } from '@/features/useAuth'
+  import AdminLayout from '@/layouts/AdminLayout.vue'
 
-const { user, checkUser } = useAuth()
-const isCheckingAuth = ref(true) // เพิ่มตัวแปรเช็คสถานะการโหลดขอบเขตแรก
+  const { user, checkUser } = useAuth()
+  const isCheckingAuth = ref(true) // เพิ่มตัวแปรเช็คสถานะการโหลดขอบเขตแรก
 
-onMounted(async () => {
-  try {
-    await checkUser() // รอตรวจสอบเซสชันเก่าในเครื่องจาก Supabase
-  } catch (error) {
-    console.error('Auth verification failed:', error)
-  } finally {
-    isCheckingAuth.value = false // เช็คเสร็จแล้ว ปิดตัวหมุนใหญ่
-  }
-})
+  onMounted(async () => {
+    try {
+      await checkUser() // รอตรวจสอบเซสชันเก่าในเครื่องจาก Supabase
+    } catch (error) {
+      console.error('Auth verification failed:', error)
+    } finally {
+      isCheckingAuth.value = false // เช็คเสร็จแล้ว ปิดตัวหมุนใหญ่
+    }
+  })
 </script>

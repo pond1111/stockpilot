@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref, onMounted, computed } from 'vue' // เพิ่ม computed เข้ามา
+  import { computed, onMounted, ref } from 'vue' // เพิ่ม computed เข้ามา
   import { useProducts } from '@/features/useProducts'
   import '@/assets/catalog.css'
 
@@ -22,7 +22,7 @@
   })
 
   // ฟังก์ชันจัดการการค้นหา (Debounce 300ms)
-  const handleSearch = () => {
+  function handleSearch () {
     if (debounceTimer) clearTimeout(debounceTimer)
 
     debounceTimer = setTimeout(() => {
@@ -35,14 +35,14 @@
     fetchProducts()
   })
 
-  const confirmDelete = async (id: number) => {
+  async function confirmDelete (id: number) {
     if (confirm('ยืนยันการลบสินค้านี้?')) {
       await deleteProduct(id)
     }
   }
 
   // ฟังก์ชันสำหรับล้างค่าฟิลเตอร์
-  const resetFilters = () => {
+  function resetFilters () {
     searchQuery.value = ''
     selectedCategory.value = 'ทั้งหมด'
     fetchProducts()
@@ -57,9 +57,9 @@
       </v-col>
       <v-col cols="auto">
         <v-btn
+          class="add-btn"
           color="primary"
           prepend-icon="mdi-plus"
-          class="add-btn"
           @click="$router.push('/add-product')"
         >
           เพิ่มสินค้าใหม่
@@ -71,36 +71,43 @@
       <v-col cols="12" md="8">
         <v-text-field
           v-model="searchQuery"
+          clearable
+          hide-details
           label="ค้นหาชื่อสินค้า..."
           prepend-inner-icon="mdi-magnify"
-          variant="outlined"
-          hide-details
-          clearable
           rounded="lg"
+          variant="outlined"
           @update:model-value="handleSearch"
-        ></v-text-field>
+        />
       </v-col>
       <v-col cols="12" md="4">
         <v-select
           v-model="selectedCategory"
-          label="หมวดหมู่"
-          :items="dynamicCategories"
-          variant="outlined"
           hide-details
+          :items="dynamicCategories"
+          label="หมวดหมู่"
           rounded="lg"
+          variant="outlined"
           @update:model-value="handleSearch"
-        ></v-select>
+        />
       </v-col>
     </v-row>
 
-    <v-divider class="my-6"></v-divider>
+    <v-divider class="my-6" />
 
     <v-row v-if="!loading && products.length > 0">
-      <v-col v-for="item in products" :key="item.id" cols="12" sm="6" md="4" lg="3">
+      <v-col
+        v-for="item in products"
+        :key="item.id"
+        cols="12"
+        lg="3"
+        md="4"
+        sm="6"
+      >
         <v-card class="product-card">
-          <v-img :src="item.imageUrl" class="product-image" cover>
-            <template v-slot:placeholder>
-              <v-row class="fill-height ma-0" align="center" justify="center">
+          <v-img class="product-image" cover :src="item.imageUrl">
+            <template #placeholder>
+              <v-row align="center" class="fill-height ma-0" justify="center">
                 <v-icon color="grey-lighten-1">mdi-image-outline</v-icon>
               </v-row>
             </template>
@@ -118,12 +125,24 @@
           <v-card-actions class="pa-4 pt-0">
             <v-row dense>
               <v-col cols="6">
-                <v-btn variant="tonal" color="info" block rounded="lg" :to="`/edit-${item.id}`">
+                <v-btn
+                  block
+                  color="info"
+                  rounded="lg"
+                  :to="`/edit-${item.id}`"
+                  variant="tonal"
+                >
                   แก้ไข
                 </v-btn>
               </v-col>
               <v-col cols="6">
-                <v-btn variant="tonal" color="error" block rounded="lg" @click="confirmDelete(item.id)">
+                <v-btn
+                  block
+                  color="error"
+                  rounded="lg"
+                  variant="tonal"
+                  @click="confirmDelete(item.id)"
+                >
                   ลบ
                 </v-btn>
               </v-col>
@@ -135,11 +154,11 @@
 
     <v-row v-else class="status-container">
       <v-col class="text-center">
-        <v-progress-circular v-if="loading" indeterminate color="primary" size="64" />
+        <v-progress-circular v-if="loading" color="primary" indeterminate size="64" />
         <div v-else class="empty-state">
-          <v-icon size="80" color="grey-lighten-2">mdi-magnify-close</v-icon>
+          <v-icon color="grey-lighten-2" size="80">mdi-magnify-close</v-icon>
           <p class="text-h6 text-grey-darken-1 mt-4">ไม่พบสินค้าที่ตรงตามเงื่อนไข</p>
-          <v-btn variant="text" color="primary" @click="resetFilters">
+          <v-btn color="primary" variant="text" @click="resetFilters">
             ล้างตัวกรองทั้งหมด
           </v-btn>
         </div>

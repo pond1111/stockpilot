@@ -3,29 +3,29 @@
     <v-navigation-drawer
       v-model="drawer"
       color="grey-darken-4"
+      elevation="0"
       :permanent="!mobile"
       :rail="rail && !mobile"
-      elevation="0"
     >
       <v-list-item
+        class="py-4"
         nav
         prepend-avatar="https://ui-avatars.com/api/?name=Admin&background=random"
-        :title="user?.email?.split('@')[0] || 'Admin'"
         :subtitle="user?.email || 'Administrator'"
-        class="py-4"
+        :title="user?.email?.split('@')[0] || 'Admin'"
       >
         <template #append>
           <v-btn
             icon="mdi-chevron-left"
             variant="text"
             @click.stop="mobile ? (drawer = false) : (rail = !rail)"
-          ></v-btn>
+          />
         </template>
       </v-list-item>
 
       <v-divider />
 
-      <v-list density="compact" nav class="mt-2">
+      <v-list class="mt-2" density="compact" nav>
         <v-list-item prepend-icon="mdi-view-dashboard" title="Dashboard" to="/" />
         <v-list-item prepend-icon="mdi-package-variant-closed" title="Catalog" to="/catalog" />
         <v-list-item prepend-icon="mdi-cog" title="Settings" to="/settings" />
@@ -47,15 +47,15 @@
       </template>
     </v-navigation-drawer>
 
-    <v-app-bar border flat class="px-2">
+    <v-app-bar border class="px-2" flat>
       <v-app-bar-nav-icon @click="mobile ? (drawer = !drawer) : (rail = !rail)" />
       <v-app-bar-title class="font-weight-bold text-uppercase">
         Stock<span class="text-primary">Pilot</span>
       </v-app-bar-title>
 
-      <v-spacer></v-spacer>
+      <v-spacer />
 
-      <v-btn icon="mdi-bell-outline" variant="text"></v-btn>
+      <v-btn icon="mdi-bell-outline" variant="text" />
     </v-app-bar>
 
     <v-main class="bg-grey-lighten-4">
@@ -76,8 +76,8 @@
     <v-snackbar
       v-model="showToast"
       :color="toastColor"
-      timeout="3000"
       elevation="24"
+      timeout="3000"
     >
       {{ toastText }}
       <template #actions>
@@ -107,7 +107,7 @@
   const toastText = ref('')
   const toastColor = ref('success')
 
-  const handleLogout = async () => {
+  async function handleLogout () {
     if (confirm('คุณต้องการออกจากระบบใช่หรือไม่?')) {
       await authLogout()
     }

@@ -1,10 +1,10 @@
 <template>
   <v-container>
     <v-btn
-      variant="text"
-      prepend-icon="mdi-arrow-left"
-      @click="$router.push('/catalog')"
       class="mb-4"
+      prepend-icon="mdi-arrow-left"
+      variant="text"
+      @click="$router.push('/catalog')"
     >
       ย้อนกลับไปหน้า Catalog
     </v-btn>
@@ -13,17 +13,29 @@
 
     <v-row v-if="editForm">
       <v-col cols="12" md="8">
-        <v-card border flat rounded="xl" class="pa-6">
+        <v-card border class="pa-6" flat rounded="xl">
           <v-form @submit.prevent="handleSave">
             <v-row>
               <v-col cols="12">
-                <v-text-field v-model="editForm.name" label="ชื่อสินค้า" variant="outlined" rounded="lg" />
+                <v-text-field v-model="editForm.name" label="ชื่อสินค้า" rounded="lg" variant="outlined" />
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field v-model.number="editForm.price" label="ราคา (บาท)" type="number" variant="outlined" rounded="lg" />
+                <v-text-field
+                  v-model.number="editForm.price"
+                  label="ราคา (บาท)"
+                  rounded="lg"
+                  type="number"
+                  variant="outlined"
+                />
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field v-model.number="editForm.stock" label="จำนวนสต๊อก" type="number" variant="outlined" rounded="lg" />
+                <v-text-field
+                  v-model.number="editForm.stock"
+                  label="จำนวนสต๊อก"
+                  rounded="lg"
+                  type="number"
+                  variant="outlined"
+                />
               </v-col>
               <v-col cols="12">
                 <!-- // เอาไว้เลืกหมสดหมู่สินค้า -->
@@ -31,12 +43,19 @@
                   v-model="editForm.category"
                   :items="['Electronics', 'Gadgets', 'Tools', 'General','food']"
                   label="หมวดหมู่"
-                  variant="outlined"
                   rounded="lg"
+                  variant="outlined"
                 />
               </v-col>
               <v-col cols="12">
-                <v-btn block color="primary" size="large" rounded="lg" type="submit" :loading="isSaving">
+                <v-btn
+                  block
+                  color="primary"
+                  :loading="isSaving"
+                  rounded="lg"
+                  size="large"
+                  type="submit"
+                >
                   บันทึกการเปลี่ยนแปลง
                 </v-btn>
               </v-col>
@@ -47,8 +66,8 @@
     </v-row>
 
     <v-row v-else>
-      <v-col cols="12" class="text-center pa-10">
-        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      <v-col class="text-center pa-10" cols="12">
+        <v-progress-circular color="primary" indeterminate />
         <p class="mt-4 text-grey">กำลังโหลดข้อมูลสินค้า ID: {{ route.params.id }}</p>
       </v-col>
     </v-row>
@@ -56,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
+  import { onMounted, ref } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { useProducts } from '@/features/useProducts'
 
@@ -82,7 +101,7 @@
     }
   })
 
-  const handleSave = async () => {
+  async function handleSave () {
     if (!editForm.value) return
     isSaving.value = true
 

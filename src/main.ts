@@ -13,6 +13,8 @@ import { registerPlugins } from '@/plugins'
 // Components
 import App from './App.vue'
 
+import { supabase } from './lib/supabase'
+
 // Styles
 import 'unfonts.css'
 
@@ -21,8 +23,6 @@ const app = createApp(App)
 registerPlugins(app)
 
 app.mount('#app')
-
-import { supabase } from'./lib/supabase';
 
 async function testConnection () {
   const { data, error } = await supabase.from('products').select('*').limit(1)
