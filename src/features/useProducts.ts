@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
-import { supabase } from '../lib/supabase'
+import axios from 'axios' // 🟢 1. เติม Axios เข้ามาเพื่อใช้คุยกับ Golang
+// import { supabase } from '../lib/supabase' // 🔴 คอมเมนต์ปิดไว้ชั่วคราว เพราะรอบนี้เราจะคุยกับ Go
 
 // ✅ State ที่ใช้ร่วมกันทั้งแอป (Global State)
 const globalProducts = ref<any[]>([])
@@ -7,45 +8,47 @@ const isGlobalLoading = ref(false)
 
 export function useProducts() {
 
-  // 1. [Read] ดึงข้อมูลสินค้าพร้อมระบบ Filter
-  // เพิ่ม parameter search และ category พร้อมค่า Default
+  // 1. [Read] ดึงข้อมูลสินค้า (รอบนี้ดึงจาก Golang Backend แทน)
   const fetchProducts = async (search = '', category = '') => {
     isGlobalLoading.value = true
     try {
-      // เริ่มต้นสร้าง Query ไปที่ตาราง products
+      // 🔴 [โค้ดเก่า Supabase - คอมเมนต์ปิดไว้ก่อน]
+      /*
       let query = supabase.from('products').select('*')
-
-      // 🔍 ค้นหาด้วยชื่อ (ถ้ามีคำค้นหา)
       if (search) {
         query = query.ilike('name', `%${search}%`)
       }
-
-      // 📂 กรองด้วยหมวดหมู่ (ถ้ามีการเลือก และไม่ใช่ 'ทั้งหมด')
       if (category && category !== 'ทั้งหมด') {
         query = query.eq('category', category)
       }
-
-      // เรียงลำดับจากใหม่ไปเก่า (ถ้ามีคอลัมน์ id หรือ created_at)
       const { data, error } = await query.order('id', { ascending: false })
-
       if (error) throw error
-
       globalProducts.value = data || []
-      console.log('✅ ดึงข้อมูลสำเร็จ:', globalProducts.value)
+      */
+
+      // 🟢 [โค้ดใหม่ Golang - เปิดใช้งานเส้นนี้]
+      // ยิงตรงไปหาเซิร์ฟเวอร์ Go พอร์ต 8080 ที่เราเขียนจำลอง มาม่า กับ ปลากระป๋อง ไว้ครับ
+      const response = await axios.get('http://localhost:8080/api/products')
+
+      // เอาข้อมูลที่ได้จาก Go มาเก็บลงในตัวแปรหน้าบ้านทันที
+      globalProducts.value = response.data || []
+      console.log('✅ ดึงข้อมูลจาก Golang สำเร็จ:', globalProducts.value)
+
     } catch (err: any) {
-      console.error('❌ ดึงข้อมูลไม่สำเร็จ:', err.message)
+      console.error('❌ ดึงข้อมูลจาก Golang ไม่สำเร็จ:', err.message)
     } finally {
       isGlobalLoading.value = false
     }
   }
 
-  // 2. [Create] เพิ่มสินค้าใหม่
+  // 2. [Create] เพิ่มสินค้าใหม่ (ตอนนี้ใช้กับโค้ด Go จำลองชั่วคราว ข้อมูลจะยังไม่เข้าคลังจริง)
   const addProduct = async (payload: any) => {
     try {
-      if (!supabase) throw new Error('Supabase not connected')
-      const { error } = await supabase.from('products').insert([payload])
-      if (error) throw error
-      await fetchProducts()
+      // 💡 ในอนาคตถ้าจะย้ายไป Go 100% ตรงนี้จะเปลี่ยนเป็น:
+      // await axios.post('http://localhost:8080/api/products', payload)
+
+      // ตอนนี้แกล้งทำเป็นว่าสำเร็จเพื่อให้หน้าบ้านทำงานต่อได้ไปก่อนครับ
+      globalProducts.value.push({ id: Date.now().toString(), ...payload })
       return true
     } catch (err: any) {
       console.error('❌ เพิ่มไม่สำเร็จ:', err.message)
@@ -56,9 +59,10 @@ export function useProducts() {
   // 3. [Read Single] ดึงข้อมูลสินค้าเฉพาะตัว
   const getProductById = async (id: string | number) => {
     try {
-      const { data, error } = await supabase.from('products').select('*').eq('id', id).single()
-      if (error) throw error
-      return data
+      // 💡 ในอนาคตถ้าใช้ Go: const response = await axios.get(`http://localhost:8080/api/products/${id}`)
+      // ตอนนี้หาจากตัวแปรในเครื่องเล่นไปก่อน
+      const item = globalProducts.value.find(p => p.id === id)
+      return item || null
     } catch (err: any) {
       console.error('❌ ดึงข้อมูลเฉพาะตัวไม่สำเร็จ:', err.message)
       return null
@@ -68,9 +72,7 @@ export function useProducts() {
   // 4. [Update] แก้ไขข้อมูลสินค้า
   const updateProduct = async (id: string | number, payload: any) => {
     try {
-      const { error } = await supabase.from('products').update(payload).eq('id', id)
-      if (error) throw error
-      await fetchProducts()
+      // 💡 ในอนาคตถ้าใช้ Go: await axios.put(`http://localhost:8080/api/products/${id}`, payload)
       return true
     } catch (err: any) {
       console.error('❌ อัปเดตไม่สำเร็จ:', err.message)
@@ -82,8 +84,7 @@ export function useProducts() {
   const deleteProduct = async (id: string | number) => {
     if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้?')) return false
     try {
-      const { error } = await supabase.from('products').delete().eq('id', id)
-      if (error) throw error
+      // 💡 ในอนาคตถ้าใช้ Go: await axios.delete(`http://localhost:8080/api/products/${id}`)
       globalProducts.value = globalProducts.value.filter(p => p.id !== id)
       return true
     } catch (err: any) {
@@ -92,13 +93,12 @@ export function useProducts() {
     }
   }
 
-  // --- 📊 สถิติคำนวณ (Computed) ---
+  // --- 📊 สถิติคำนวณ (Computed เหมือนเดิม ไม่ต้องแก้ เพราะอิงจากข้อมูลที่ส่งมา) ---
 
   const totalProducts = computed(() => globalProducts.value.length)
 
   const totalStockValue = computed(() => {
     return globalProducts.value.reduce((acc, item) => {
-      // กันเหนียว: แปลงเป็นตัวเลขก่อนคำนวณ ป้องกันค่า null/undefined
       const price = Number(item.price) || 0
       const stock = Number(item.stock) || 0
       return acc + (price * stock)

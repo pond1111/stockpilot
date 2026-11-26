@@ -1,27 +1,30 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
-import { supabase } from '@/lib/supabase' // สังเกตว่าต้อง import supabase มาเช็ค session
+import { supabase } from '@/lib/supabase'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
 
-// ✅ เพิ่ม Navigation Guard เพื่อความปลอดภัย
+// ✅ Navigation Guard เพื่อความปลอดภัย
 router.beforeEach(async (to, from, next) => {
-  // ดึงข้อมูล Session ปัจจุบันจาก Supabase
+  // 1. ดึงข้อมูล Session ล่าสุดจาก Supabase อัปเดตแบบเรียลไทม์
   const { data: { session } } = await supabase.auth.getSession()
+  const isLoggedIn = !!session
 
-  const isLoginPage = to.path.toLowerCase() === '/login'
+  // 2. ปรับการเช็คตัวพิมพ์เล็ก-ใหญ่ และเครื่องหมาย / ท้าย URL ให้แม่นยำขึ้น
+  const targetPath = to.path.replace(/\/$/, '').toLowerCase()
+  const isLoginPage = targetPath === '/login'
 
-  if (!session && !isLoginPage) {
-    // 1. ถ้าไม่มี Session และไม่ใช่หน้า Login -> ให้ไปหน้า Login
-    next('/login')
-  } else if (session && isLoginPage) {
-    // 2. ถ้ามี Session แล้วแต่จะเข้าหน้า Login -> ให้ไปหน้า Dashboard หรือ Catalog
-    next('/')
+  if (!isLoggedIn && !isLoginPage) {
+    // ถ้าไม่ได้ล็อกอิน และไม่ใช่หน้า Login -> บังคับไปหน้า Login
+    next({ path: '/login' })
+  } else if (isLoggedIn && isLoginPage) {
+    // ถ้าล็อกอินแล้ว แต่จะแอบเข้าหน้า Login ซ้ำ -> ดีดไปหน้า Catalog หรือหน้าหลัก
+    next({ path: '/catalog' })
   } else {
-    // 3. กรณีอื่นๆ (เช่น เข้าหน้า Login ตอนยังไม่ Login หรือ เข้าหน้า Admin ตอน Login แล้ว) -> ปล่อยผ่าน
+    // กรณีอื่นๆ -> ปล่อยผ่านปกติ
     next()
   }
 })

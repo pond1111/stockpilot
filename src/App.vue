@@ -1,28 +1,40 @@
 <template>
   <v-app>
-    <template v-if="$route.path.toLowerCase() === '/login'">
-      <router-view />
-    </template>
+    <v-overlay :model-value="isCheckingAuth" class="align-center justify-center" permanent>
+      <v-progress-circular indeterminate color="primary" size="64" />
+    </v-overlay>
 
-    <template v-else>
-      <AdminLayout v-if="user" />
+    <template v-if="!isCheckingAuth">
+      <template v-if="$route.path.toLowerCase() === '/login'">
+        <router-view />
+      </template>
 
-      <v-overlay v-else :model-value="true" class="align-center justify-center">
-        <v-progress-circular indeterminate color="primary" size="64" />
-      </v-overlay>
+      <template v-else-if="user">
+        <AdminLayout />
+      </template>
+
+      <template v-else>
+        <router-view />
+      </template>
     </template>
   </v-app>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import { useAuth } from '@/features/useAuth'
 
 const { user, checkUser } = useAuth()
+const isCheckingAuth = ref(true) // เพิ่มตัวแปรเช็คสถานะการโหลดขอบเขตแรก
 
-// เมื่อแอปโหลดขึ้นมา ให้เช็คทันทีว่า User ล็อกอินค้างไว้ไหม
 onMounted(async () => {
-  await checkUser()
+  try {
+    await checkUser() // รอตรวจสอบเซสชันเก่าในเครื่องจาก Supabase
+  } catch (error) {
+    console.error('Auth verification failed:', error)
+  } finally {
+    isCheckingAuth.value = false // เช็คเสร็จแล้ว ปิดตัวหมุนใหญ่
+  }
 })
 </script>

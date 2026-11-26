@@ -95,7 +95,7 @@ onMounted(() => {
 const displayStats = computed(() => {
   const allProducts = products.value || []
   const totalValue = allProducts.reduce((acc, item) => acc + (Number(item.price || 0) * Number(item.stock || 0)), 0)
-  const lowStockCount = allProducts.filter(item => (Number(item.stock) || 0) < 5).length
+  const lowStockCount = allProducts.filter(item => (Number(item.stock) || 0) <= 5).length
 
   return [
     { title: 'สินค้าทั้งหมด', value: allProducts.length, icon: 'mdi-package-variant', color: 'primary' },
