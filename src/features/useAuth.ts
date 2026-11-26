@@ -37,7 +37,7 @@ export function useAuth() {
       console.log('✅ เข้าสู่ระบบสำเร็จ:', user.value)
 
       // ล็อกอินเสร็จให้ไปหน้า Catalog ตามที่คุณต้องการ
-      router.push('/catalog')
+      router.push('/')
     } catch (err: any) {
       console.error('❌ Login Error:', err.message)
       alert('อีเมลหรือรหัสผ่านไม่ถูกต้อง: ' + err.message)

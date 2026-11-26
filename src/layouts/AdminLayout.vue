@@ -3,8 +3,8 @@
     <v-navigation-drawer
       v-model="drawer"
       color="grey-darken-4"
-      permanent
-      :rail="rail"
+      :permanent="!mobile"
+      :rail="rail && !mobile"
       elevation="0"
     >
       <v-list-item
@@ -18,7 +18,7 @@
           <v-btn
             icon="mdi-chevron-left"
             variant="text"
-            @click.stop="rail = !rail"
+            @click.stop="mobile ? (drawer = false) : (rail = !rail)"
           ></v-btn>
         </template>
       </v-list-item>
@@ -40,7 +40,7 @@
             variant="tonal"
             @click="handleLogout"
           >
-            <v-icon v-if="rail">mdi-logout</v-icon>
+            <v-icon v-if="rail && !mobile">mdi-logout</v-icon>
             <span v-else>Logout</span>
           </v-btn>
         </div>
@@ -48,7 +48,7 @@
     </v-navigation-drawer>
 
     <v-app-bar border flat class="px-2">
-      <v-app-bar-nav-icon @click="rail = !rail" />
+      <v-app-bar-nav-icon @click="mobile ? (drawer = !drawer) : (rail = !rail)" />
       <v-app-bar-title class="font-weight-bold text-uppercase">
         Stock<span class="text-primary">Pilot</span>
       </v-app-bar-title>
@@ -62,7 +62,7 @@
       <router-view />
     </v-main>
 
-    <v-bottom-navigation v-if="$vuetify.display.mobile" color="primary" grow>
+    <v-bottom-navigation v-if="mobile" color="primary" grow>
       <v-btn to="/">
         <v-icon>mdi-view-dashboard</v-icon>
         Dashboard
@@ -89,12 +89,17 @@
 
 <script setup lang="ts">
   import { ref } from 'vue'
+  import { useDisplay } from 'vuetify'
   import { useAuth } from '@/features/useAuth'
 
-  // ✅ ดึงข้อมูล User และฟังก์ชัน Logout มาใช้งาน
+  // ตรวจว่าเปิดบนมือถือหรือไม่ (จอแคบ)
+  const { mobile } = useDisplay()
+
+  // ข้อมูลผู้ใช้และฟังก์ชันออกจากระบบ
   const { user, handleLogout: authLogout } = useAuth()
 
-  const drawer = ref(true)
+  // เมนูด้านข้าง: มือถือซ่อนไว้ก่อน / คอมแสดงตลอด
+  const drawer = ref(!mobile.value)
   const rail = ref(false)
 
   // Toast State
@@ -102,7 +107,6 @@
   const toastText = ref('')
   const toastColor = ref('success')
 
-  // ✅ ฟังก์ชัน Logout พร้อมแสดง Toast ก่อนออก (Optional)
   const handleLogout = async () => {
     if (confirm('คุณต้องการออกจากระบบใช่หรือไม่?')) {
       await authLogout()
@@ -111,7 +115,6 @@
 </script>
 
 <style scoped>
-/* ปรับแต่งความสวยงามเล็กน้อย */
 .v-navigation-drawer {
   transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
